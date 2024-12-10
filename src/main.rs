@@ -2,16 +2,18 @@
 use std::f32::consts::PI;
 
 use bevy::color::palettes::css::WHITE;
+// use bevy::core_pipeline::oit::OrderIndependentTransparencySettings;
 use bevy::diagnostic::EntityCountDiagnosticsPlugin;
-// use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
+use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::diagnostic::LogDiagnosticsPlugin;
 use bevy::diagnostic::SystemInformationDiagnosticsPlugin;
-use bevy::render::renderer::{RenderDevice, RenderQueue};
+use bevy::pbr::CascadeShadowConfig;
+// use bevy::render::renderer::{RenderDevice, RenderQueue};
 
 // use bevy::ecs::schedule::ExecutorKind;
 // use bevy::window::WindowResolution;
 
-use bevy::window::WindowMode;
+// use bevy::window::WindowMode;
 use bevy::{
     // text::FontSmoothing,
     prelude::*,
@@ -19,16 +21,16 @@ use bevy::{
 
 use bevy::{
     color::palettes::tailwind::*,
-    core_pipeline::{
-        bloom::BloomSettings,
-        dof::{DepthOfFieldMode, DepthOfFieldSettings},
-        prepass::{DepthPrepass, NormalPrepass},
-        tonemapping::Tonemapping,
-        Skybox,
-    },
+    // core_pipeline::{
+    //     bloom::BloomSettings,
+    //     dof::{DepthOfFieldMode, DepthOfFieldSettings},
+    //     prepass::{DepthPrepass, NormalPrepass},
+    //     tonemapping::Tonemapping,
+    //     Skybox,
+    // },
     pbr::{
         wireframe::{Wireframe, WireframePlugin},
-        CascadeShadowConfigBuilder, ExtendedMaterial, OpaqueRendererMethod,
+        // CascadeShadowConfigBuilder, ExtendedMaterial, OpaqueRendererMethod,
     },
     render::{
         mesh::VertexAttributeValues,
@@ -36,7 +38,7 @@ use bevy::{
         RenderPlugin,
     },
 };
-use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
+// use bevy_panorbit_camera::{PanOrbitCamera, PanOrbitCameraPlugin};
 // use noise::{BasicMulti, NoiseFn, Perlin, Seedable};
 // use bevy::prelude::*;
 use noise::{BasicMulti, NoiseFn, Perlin};
@@ -52,9 +54,9 @@ use bevy::tasks::available_parallelism;
 // https://github.com/PhaestusFox/BevyBasics
 // https://github.com/Adamekka/bevy-fps-counter/blob/f2c5bef25b3148c087e058c2ab39df00c11b0f6b/examples/basic.rs
 // use bevy_fps_counter::{FpsCounter, FpsCounterPlugin};
-use bevy_fps_counter::FpsCounterPlugin;
-mod water_material;
-use water_material::*;
+// use bevy_fps_counter::FpsCounterPlugin;
+// mod water_material;
+// use water_material::*;
 
 // text::FontSmoothing
 
@@ -77,61 +79,57 @@ use water_material::*;
 
 fn main() {
     App::new()
-        .add_plugins(
-            (
-                DefaultPlugins
-                    .set(RenderPlugin {
-                        render_creation: RenderCreation::Automatic(WgpuSettings {
-                            features: WgpuFeatures::POLYGON_MODE_LINE,
-                            ..default()
-                        }),
-                        ..default()
-                    })
-                    .set(WindowPlugin {
-                        primary_window: Some(Window {
-                            title: "Bevy Game".to_string(),
-                            // resolution: WindowResolution::new(800., 600.),
-                            // with_scale_factor_override(1.),
-                            // resizable: false,
-                            present_mode: bevy::window::PresentMode::AutoNoVsync,
-                            // mode: WindowMode::BorderlessFullscreen,
-                            ..Default::default()
-                        }),
-                        ..Default::default()
-                    })
-                // .set(TaskPoolPlugin {
-                //     task_pool_options: TaskPoolOptions {
-                //         compute: TaskPoolThreadAssignmentPolicy {
-                //             // set the minimum # of compute threads
-                //             // to the total number of available threads
-                //             min_threads: available_parallelism(),
-                //             max_threads: std::usize::MAX, // unlimited max threads
-                //             percent: 50.0,                // this value is irrelevant in this case
-                //         },
-                //         // keep the defaults for everything else
-                //         ..default()
-                //     },
-                // }),
-            ),
-        )
+        .add_plugins((DefaultPlugins
+            .set(RenderPlugin {
+                render_creation: RenderCreation::Automatic(WgpuSettings {
+                    features: WgpuFeatures::POLYGON_MODE_LINE,
+                    ..default()
+                }),
+                ..default()
+            })
+            .set(WindowPlugin {
+                primary_window: Some(Window {
+                    title: "Bevy Game".to_string(),
+                    // resolution: WindowResolution::new(800., 600.),
+                    // with_scale_factor_override(1.),
+                    // resizable: false,
+                    present_mode: bevy::window::PresentMode::AutoNoVsync,
+                    // mode: WindowMode::BorderlessFullscreen,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            })
+            .set(TaskPoolPlugin {
+                task_pool_options: TaskPoolOptions {
+                    compute: TaskPoolThreadAssignmentPolicy {
+                        // set the minimum # of compute threads
+                        // to the total number of available threads
+                        min_threads: available_parallelism(),
+                        max_threads: std::usize::MAX, // unlimited max threads
+                        percent: 50.0,                // this value is irrelevant in this case
+                    },
+                    // keep the defaults for everything else
+                    ..default()
+                },
+            }),))
         // .edit_schedule(Update, |schedule| {
         //     schedule.set_executor_kind(ExecutorKind::SingleThreaded);
         // })
         .add_plugins((WireframePlugin,))
-        .add_plugins((PanOrbitCameraPlugin,))
-        .add_plugins((MaterialPlugin::<
-            ExtendedMaterial<StandardMaterial, WaterExtension>,
-        >::default(),))
+        // .add_plugins((PanOrbitCameraPlugin,))
+        // .add_plugins((MaterialPlugin::<
+        //     ExtendedMaterial<StandardMaterial, WaterExtension>,
+        // >::default(),))
         .add_plugins(LogDiagnosticsPlugin::default())
-        // .add_plugins(FrameTimeDiagnosticsPlugin::default())
+        .add_plugins(FrameTimeDiagnosticsPlugin::default())
         // we want Bevy to measure these values for us:
-        // .add_plugins(EntityCountDiagnosticsPlugin::default())
-        // .add_plugins(SystemInformationDiagnosticsPlugin::default())
+        .add_plugins(EntityCountDiagnosticsPlugin::default())
+        .add_plugins(SystemInformationDiagnosticsPlugin::default())
         .add_systems(Startup, startup)
         .add_systems(Update, toggle_wireframe)
-        .add_systems(Update, debug_transform)
-        .add_plugins(FpsCounterPlugin)
-        .add_systems(Startup, debug_renderes)
+        // .add_systems(Update, debug_transform)
+        // .add_plugins(FpsCounterPlugin)
+        // .add_systems(Startup, debug_renderes)
         // If a UI camera is already in your game remove the next line
         // .add_systems(Startup, |mut commands: Commands| {
         //     commands.spawn_bundle(Camera2dBundle::default());
@@ -139,11 +137,11 @@ fn main() {
         .run();
 }
 
-const TERRAIN_XZ_TO_Y_SCALLER: f32 = 1.0;
+const TERRAIN_XZ_TO_Y_SCALLER: f32 = 2.0;
 const TERRAIN_HEIGHT: f32 = 70.0;
 const TERRAIN_CHUNK_W: f32 = 1024.0 / TERRAIN_XZ_TO_Y_SCALLER;
 const TERRAIN_CHUNK_H: f32 = 1024.0 / TERRAIN_XZ_TO_Y_SCALLER;
-const TERRAIN_CHUNK_SUBDIVISIONS: u32 = 32;
+const TERRAIN_CHUNK_SUBDIVISIONS: u32 = 32 / TERRAIN_XZ_TO_Y_SCALLER as u32;
 const TERRAIN_CHUNK_SCALLER: f64 = 300.0;
 
 fn generate_chunk(
@@ -249,87 +247,94 @@ fn generate_chunk(
             .collect();
         terrain.insert_attribute(Mesh::ATTRIBUTE_COLOR, colors);
         terrain.compute_normals();
-
         // terrain.translate_by();
     }
 
     return terrain;
 }
 
-#[derive(Component)]
-struct CameraMarker;
+// #[derive(Component)]
+// struct CameraMarker;
 
 fn startup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     // mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut water_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, WaterExtension>>>,
-    asset_server: ResMut<AssetServer>,
+    // mut water_materials: ResMut<Assets<ExtendedMaterial<StandardMaterial, WaterExtension>>>,
+    // asset_server: ResMut<AssetServer>,
 ) {
     commands.spawn((
-        (
-            Camera3dBundle {
-                transform: Transform::from_xyz(-94.60196, 162.97789, 306.44165)
-                    .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
-                camera: Camera {
-                    hdr: true,
-                    ..default()
-                },
-                tonemapping: Tonemapping::TonyMcMapface,
-                ..default()
-            },
-            CameraMarker,
-        ),
-        // Skybox {
-        //     brightness: 5000.0,
-        //     image: asset_server.load(
-        //         "skybox_cubemap/skybox_specular.ktx2",
-        //     ),
+        Camera3d::default(),
+        // OrderIndependentTransparencySettings {
+        //     layer_count: 16,
+        //     ..default()
         // },
-        // EnvironmentMapLight {
-        //     diffuse_map: asset_server
-        //         .load("skybox_cubemap/skybox_diffuse.ktx2"),
-        //     specular_map: asset_server.load(
-        //         "skybox_cubemap/skybox_specular.ktx2",
-        //     ),
-        //     intensity: 2000.0,
-        // },
-        // Skybox {
-        //     brightness: 1000.0,
-        //     image: asset_server
-        //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_specular.ktx2"),
-        // },
-        // EnvironmentMapLight {
-        //     diffuse_map: asset_server
-        //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_diffuse.ktx2"),
-        //     specular_map: asset_server
-        //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_specular.ktx2"),
-        //     intensity: 1000.0,
-        // },
-        // BloomSettings::NATURAL,
-        PanOrbitCamera::default(),
-        DepthOfFieldSettings {
-            mode: DepthOfFieldMode::Gaussian,
-            focal_distance: 40.,
-            aperture_f_stops: 1.0 / 8.0,
-            ..default()
-        },
-        DepthPrepass,
-        NormalPrepass,
+        Transform::from_xyz(-94.60196, 162.97789, 306.44165),
     ));
+
+    // commands.spawn((
+    //     (
+    //         Camera3dBundle {
+    //             transform: Transform::from_xyz(-94.60196, 162.97789, 306.44165)
+    //                 .looking_at(Vec3::new(0., 1., 0.), Vec3::Y),
+    //             camera: Camera {
+    //                 hdr: true,
+    //                 ..default()
+    //             },
+    //             tonemapping: Tonemapping::TonyMcMapface,
+    //             ..default()
+    //         },
+    //         CameraMarker,
+    //     ),
+    //     // Skybox {
+    //     //     brightness: 5000.0,
+    //     //     image: asset_server.load(
+    //     //         "skybox_cubemap/skybox_specular.ktx2",
+    //     //     ),
+    //     // },
+    //     // EnvironmentMapLight {
+    //     //     diffuse_map: asset_server
+    //     //         .load("skybox_cubemap/skybox_diffuse.ktx2"),
+    //     //     specular_map: asset_server.load(
+    //     //         "skybox_cubemap/skybox_specular.ktx2",
+    //     //     ),
+    //     //     intensity: 2000.0,
+    //     // },
+    //     // Skybox {
+    //     //     brightness: 1000.0,
+    //     //     image: asset_server
+    //     //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_specular.ktx2"),
+    //     // },
+    //     // EnvironmentMapLight {
+    //     //     diffuse_map: asset_server
+    //     //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_diffuse.ktx2"),
+    //     //     specular_map: asset_server
+    //     //         .load("kloppenheim_06_puresky_4k_diffuse/kloppenheim_06_puresky_4k_specular.ktx2"),
+    //     //     intensity: 1000.0,
+    //     // },
+    //     // BloomSettings::NATURAL,
+    //     PanOrbitCamera::default(),
+    //     DepthOfFieldSettings {
+    //         mode: DepthOfFieldMode::Gaussian,
+    //         focal_distance: 40.,
+    //         aperture_f_stops: 1.0 / 8.0,
+    //         ..default()
+    //     },
+    //     DepthPrepass,
+    //     NormalPrepass,
+    // ));
 
     // commands.spawn(PerfUiAllEntries::default());
     // commands.spawn(PerfUiPlugin::default());
 
-    // directional 'sun' light
-    commands.spawn(DirectionalLightBundle {
-        directional_light: DirectionalLight {
+    commands.spawn((
+        DirectionalLight {
             illuminance: light_consts::lux::OVERCAST_DAY,
             shadows_enabled: true,
             ..default()
         },
-        transform: Transform {
+        Transform {
             translation: Vec3::new(0.0, 2.0, 0.0),
             rotation: Quat::from_rotation_x(-PI / 4.),
             ..default()
@@ -337,71 +342,16 @@ fn startup(
         // The default cascade config is designed to handle large scenes.
         // As this example has a much smaller world, we can tighten the shadow
         // bounds for better visual quality.
-        cascade_shadow_config: CascadeShadowConfigBuilder {
-            first_cascade_far_bound: 4.0,
-            maximum_distance: 10.0,
+        CascadeShadowConfig {
+            // first_cascade_far_bound: 4.0,
+            // maximum_distance: 10.0,
+            // bounds: Vec<f32>,
+            overlap_proportion: 10.0,
+            minimum_distance: 2.0,
             ..default()
-        }
-        .into(),
-        ..default()
-    });
-
-    // let x: f64 = 0.0;
-    // let z: f64 = 0.0;
-    // let terrain: Mesh = generate_chunk(x, z);
-
-    // if true {
-    //     // water
-    //     let water = Mesh::from(
-    //         Plane3d::default()
-    //             .mesh()
-    //             .size(TERRAIN_CHUNK_W, TERRAIN_CHUNK_H)
-    //             .subdivisions(TERRAIN_CHUNK_SUBDIVISIONS),
-    //     );
-
-    //     commands.spawn(MaterialMeshBundle {
-    //         mesh: meshes.add(water),
-    //         transform: Transform::from_xyz(
-    //             0.,
-    //             -(TERRAIN_HEIGHT / 2.) + TERRAIN_HEIGHT * 6. / 16.,
-    //             0.,
-    //         ),
-    //         material: water_materials.add(ExtendedMaterial {
-    //             base: StandardMaterial {
-    //                 clearcoat: 0.5,
-    //                 clearcoat_perceptual_roughness: 0.3,
-    //                 // clearcoat_normal_texture: Some(asset_server.load_with_settings(
-    //                 //     "textures/ScratchedGold-Normal.png",
-    //                 //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
-    //                 // )),
-    //                 metallic: 0.4,
-    //                 base_color: BLUE_400.into(),
-    //                 perceptual_roughness: 0.8,
-    //                 // ** clearcoat: 1.0,
-    //                 // ** clearcoat_perceptual_roughness: 0.3,
-    //                 // ** // clearcoat_normal_texture: Some(asset_server.load_with_settings(
-    //                 // ** //     "textures/ScratchedGold-Normal.png",
-    //                 // ** //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
-    //                 // ** // )),
-    //                 // ** metallic: 0.9,
-    //                 // ** base_color: BLUE_400.into(),
-    //                 // ** perceptual_roughness: 0.2,
-
-    //                 // can be used in forward or deferred mode.
-    //                 opaque_render_method: OpaqueRendererMethod::Auto,
-    //                 // in deferred mode, only the PbrInput can be modified (uvs, color and other material properties),
-    //                 // in forward mode, the output can also be modified after lighting is applied.
-    //                 // see the fragment shader `extended_material.wgsl` for more info.
-    //                 // Note: to run in deferred mode, you must also add a `DeferredPrepass` component to the camera and either
-    //                 // change the above to `OpaqueRendererMethod::Deferred` or add the `DefaultOpaqueRendererMethod` resource.
-    //                 alpha_mode: AlphaMode::Blend,
-    //                 ..default()
-    //             },
-    //             extension: WaterExtension { quantize_steps: 30 },
-    //         }),
-    //         ..default()
-    //     });
-    // }
+        },
+        // ..default()
+    ));
 
     // let mut terrains: Vec<Mesh> = vec![];
 
@@ -410,17 +360,28 @@ fn startup(
             let terrain: Mesh = generate_chunk(x as f64, z as f64);
 
             commands.spawn((
-                PbrBundle {
-                    mesh: meshes.add(terrain),
-                    material: materials.add(StandardMaterial {
-                        base_color: Color::WHITE,
-                        perceptual_roughness: 0.9,
-                        ..default()
-                    }),
+                Mesh3d(meshes.add(terrain)),
+                MeshMaterial3d(materials.add(StandardMaterial {
+                    base_color: Color::WHITE,
+                    perceptual_roughness: 0.9,
                     ..default()
-                },
+                })),
+                // Transform::from_translation(Vec3::new(-200., 0., 0.)),
                 Terrain,
             ));
+
+            // commands.spawn((
+            //     PbrBundle {
+            //         mesh: meshes.add(terrain),
+            //         material: materials.add(StandardMaterial {
+            //             base_color: Color::WHITE,
+            //             perceptual_roughness: 0.9,
+            //             ..default()
+            //         }),
+            //         ..default()
+            //     },
+            //     Terrain,
+            // ));
 
             // water
             let water = Mesh::from(
@@ -430,48 +391,103 @@ fn startup(
                     .subdivisions(TERRAIN_CHUNK_SUBDIVISIONS),
             );
 
-            commands.spawn(MaterialMeshBundle {
-                mesh: meshes.add(water),
-                transform: Transform::from_xyz(
+            commands.spawn((
+                Mesh3d(meshes.add(water)),
+                MeshMaterial3d(materials.add(Color::srgb(255.0, 0.0, 0.0))),
+                Transform::from_xyz(
                     (TERRAIN_CHUNK_W * x as f32) as f32,
                     -(TERRAIN_HEIGHT / 2.) + TERRAIN_HEIGHT * 6. / 16.,
                     (TERRAIN_CHUNK_W * z as f32) as f32,
                 ),
-                material: water_materials.add(ExtendedMaterial {
-                    base: StandardMaterial {
-                        clearcoat: 0.5,
-                        clearcoat_perceptual_roughness: 0.3,
-                        // clearcoat_normal_texture: Some(asset_server.load_with_settings(
-                        //     "textures/ScratchedGold-Normal.png",
-                        //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
-                        // )),
-                        metallic: 0.4,
-                        base_color: BLUE_400.into(),
-                        perceptual_roughness: 0.8,
-                        // ** clearcoat: 1.0,
-                        // ** clearcoat_perceptual_roughness: 0.3,
-                        // ** // clearcoat_normal_texture: Some(asset_server.load_with_settings(
-                        // ** //     "textures/ScratchedGold-Normal.png",
-                        // ** //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
-                        // ** // )),
-                        // ** metallic: 0.9,
-                        // ** base_color: BLUE_400.into(),
-                        // ** perceptual_roughness: 0.2,
+            ));
 
-                        // can be used in forward or deferred mode.
-                        opaque_render_method: OpaqueRendererMethod::Auto,
-                        // in deferred mode, only the PbrInput can be modified (uvs, color and other material properties),
-                        // in forward mode, the output can also be modified after lighting is applied.
-                        // see the fragment shader `extended_material.wgsl` for more info.
-                        // Note: to run in deferred mode, you must also add a `DeferredPrepass` component to the camera and either
-                        // change the above to `OpaqueRendererMethod::Deferred` or add the `DefaultOpaqueRendererMethod` resource.
-                        alpha_mode: AlphaMode::Blend,
-                        ..default()
-                    },
-                    extension: WaterExtension { quantize_steps: 30 },
-                }),
-                ..default()
-            });
+            // commands.spawn((
+            //     // Mesh3d(meshes.add(Circle::new(100.0))),
+            //     // MeshMaterial3d(materials.add(Color::srgb(7.5, 0.0, 7.5))),
+            //     // Transform::from_translation(Vec3::new(-200., 0., 0.)),
+            //     Mesh3d(meshes.add(water)),
+            //     MeshMaterial3d(water_materials.add(ExtendedMaterial {
+            //         base: StandardMaterial {
+            //             clearcoat: 0.5,
+            //             clearcoat_perceptual_roughness: 0.3,
+            //             // clearcoat_normal_texture: Some(asset_server.load_with_settings(
+            //             //     "textures/ScratchedGold-Normal.png",
+            //             //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
+            //             // )),
+            //             metallic: 0.4,
+            //             base_color: BLUE_400.into(),
+            //             perceptual_roughness: 0.8,
+            //             // ** clearcoat: 1.0,
+            //             // ** clearcoat_perceptual_roughness: 0.3,
+            //             // ** // clearcoat_normal_texture: Some(asset_server.load_with_settings(
+            //             // ** //     "textures/ScratchedGold-Normal.png",
+            //             // ** //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
+            //             // ** // )),
+            //             // ** metallic: 0.9,
+            //             // ** base_color: BLUE_400.into(),
+            //             // ** perceptual_roughness: 0.2,
+
+            //             // can be used in forward or deferred mode.
+            //             opaque_render_method: OpaqueRendererMethod::Auto,
+            //             // in deferred mode, only the PbrInput can be modified (uvs, color and other material properties),
+            //             // in forward mode, the output can also be modified after lighting is applied.
+            //             // see the fragment shader `extended_material.wgsl` for more info.
+            //             // Note: to run in deferred mode, you must also add a `DeferredPrepass` component to the camera and either
+            //             // change the above to `OpaqueRendererMethod::Deferred` or add the `DefaultOpaqueRendererMethod` resource.
+            //             alpha_mode: AlphaMode::Blend,
+            //             ..default()
+            //         },
+            //         extension: WaterExtension { quantize_steps: 30 },
+            //     })),
+            //     Transform::from_xyz(
+            //         (TERRAIN_CHUNK_W * x as f32) as f32,
+            //         -(TERRAIN_HEIGHT / 2.) + TERRAIN_HEIGHT * 6. / 16.,
+            //         (TERRAIN_CHUNK_W * z as f32) as f32,
+            //     ),
+            // ));
+
+            // commands.spawn(MaterialMeshBundle {
+            //     mesh: meshes.add(water),
+            //     transform: Transform::from_xyz(
+            //         (TERRAIN_CHUNK_W * x as f32) as f32,
+            //         -(TERRAIN_HEIGHT / 2.) + TERRAIN_HEIGHT * 6. / 16.,
+            //         (TERRAIN_CHUNK_W * z as f32) as f32,
+            //     ),
+            //     material: water_materials.add(ExtendedMaterial {
+            //         base: StandardMaterial {
+            //             clearcoat: 0.5,
+            //             clearcoat_perceptual_roughness: 0.3,
+            //             // clearcoat_normal_texture: Some(asset_server.load_with_settings(
+            //             //     "textures/ScratchedGold-Normal.png",
+            //             //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
+            //             // )),
+            //             metallic: 0.4,
+            //             base_color: BLUE_400.into(),
+            //             perceptual_roughness: 0.8,
+            //             // ** clearcoat: 1.0,
+            //             // ** clearcoat_perceptual_roughness: 0.3,
+            //             // ** // clearcoat_normal_texture: Some(asset_server.load_with_settings(
+            //             // ** //     "textures/ScratchedGold-Normal.png",
+            //             // ** //     |settings: &mut ImageLoaderSettings| settings.is_srgb = false,
+            //             // ** // )),
+            //             // ** metallic: 0.9,
+            //             // ** base_color: BLUE_400.into(),
+            //             // ** perceptual_roughness: 0.2,
+
+            //             // can be used in forward or deferred mode.
+            //             opaque_render_method: OpaqueRendererMethod::Auto,
+            //             // in deferred mode, only the PbrInput can be modified (uvs, color and other material properties),
+            //             // in forward mode, the output can also be modified after lighting is applied.
+            //             // see the fragment shader `extended_material.wgsl` for more info.
+            //             // Note: to run in deferred mode, you must also add a `DeferredPrepass` component to the camera and either
+            //             // change the above to `OpaqueRendererMethod::Deferred` or add the `DefaultOpaqueRendererMethod` resource.
+            //             alpha_mode: AlphaMode::Blend,
+            //             ..default()
+            //         },
+            //         extension: WaterExtension { quantize_steps: 30 },
+            //     }),
+            //     ..default()
+            // });
         }
     }
 }
@@ -488,26 +504,26 @@ fn startup(
 //     }
 // }
 
-static mut X: i32 = 0;
-fn debug_transform(query_camera: Query<&Transform, With<CameraMarker>>) {
-    unsafe {
-        // X += 1;
-        // if X % 100 == 0 {
-        //     let transform = query_camera.single();
-        //     println!(
-        //         "cam: (:x, :y, :z) = ({}, {}, {})",
-        //         transform.translation.x, transform.translation.y, transform.translation.z
-        //     );
-        // }
-    }
-}
+// static mut X: i32 = 0;
+// fn debug_transform(query_camera: Query<&Transform, With<CameraMarker>>) {
+//     unsafe {
+//         X += 1;
+//         if X % 100 == 0 {
+//             let transform = query_camera.single();
+//             println!(
+//                 "cam: (:x, :y, :z) = ({}, {}, {})",
+//                 transform.translation.x, transform.translation.y, transform.translation.z
+//             );
+//         }
+//     }
+// }
 
-fn debug_renderes(_render_device: Res<RenderDevice>, _render_queue: Res<RenderQueue>) {
-    // Access GPU information via render_device or render_queue
-    // Example: log device limits
-    // let limits = render_device.limits();
-    // info!("Max texture size: {}", limits.max_texture_dimension_2d);
-}
+// fn debug_renderes(_render_device: Res<RenderDevice>, _render_queue: Res<RenderQueue>) {
+//     // Access GPU information via render_device or render_queue
+//     // Example: log device limits
+//     // let limits = render_device.limits();
+//     // info!("Max texture size: {}", limits.max_texture_dimension_2d);
+// }
 
 #[derive(Component)]
 struct Terrain;
